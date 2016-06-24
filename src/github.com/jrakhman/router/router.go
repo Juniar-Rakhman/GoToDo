@@ -1,51 +1,25 @@
 package router
 
 import (
-	"net/http"
 	"github.com/gorilla/mux"
-	"github.com/jrakhman/handlers"
+	"github.com/jrakhman/logger"
 )
-
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
-}
-
-type Routes []Route
 
 func NewRouter() *mux.Router {
 
 	router := mux.NewRouter().StrictSlash(true)
+
 	for _, route := range routes {
+
+		//apply logger decorator
+		handler := logger.NewLogger(route.HandlerFunc, route.Name)
+
 		router.
 		Methods(route.Method).
 		Path(route.Pattern).
 		Name(route.Name).
-		Handler(route.HandlerFunc)
+		Handler(handler)
 	}
 
 	return router
-}
-
-var routes = Routes{
-	Route{
-		"Index",
-		"GET",
-		"/",
-		handlers.Index,
-	},
-	Route{
-		"TodoIndex",
-		"GET",
-		"/todos",
-		handlers.TodoIndex,
-	},
-	Route{
-		"TodoShow",
-		"GET",
-		"/todos/{todoId}",
-		handlers.TodoShow,
-	},
 }
